@@ -1,0 +1,740 @@
+<title>Everyday</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one quiet centered column; the year grid is the hero and every control sits around it in small type */
+:root{
+  --bg:#f4f5f3; --surface:#ffffff; --fg:#161917; --muted:#6a706b; --faint:#9aa09b;
+  --line:#e2e5e1; --empty:#e6e9e5; --future:#eff1ee; --ring:#161917;
+  --shadow:0 12px 32px rgba(18,24,20,.10),0 1px 3px rgba(18,24,20,.06);
+  --lshift:0;
+  --glass:rgba(255,255,255,.74); --glass-line:rgba(255,255,255,.9); --veil:rgba(244,245,243,.28); --lead:#f4f5f3;
+  --sans:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --cell:14px; --gap:3px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e100f; --surface:#171a18; --fg:#e9ece9; --muted:#8a918b; --faint:#5d645e;
+  --line:#252a26; --empty:#1f2420; --future:#141715; --ring:#e9ece9;
+  --shadow:0 12px 32px rgba(0,0,0,.45),0 1px 3px rgba(0,0,0,.3);
+  --lshift:-0.05; color-scheme:dark;
+  --glass:rgba(20,23,21,.76); --glass-line:rgba(255,255,255,.08); --veil:rgba(14,16,15,.38); --lead:#0b0d0c;
+}}
+:root[data-theme="dark"]{
+  --bg:#0e100f; --surface:#171a18; --fg:#e9ece9; --muted:#8a918b; --faint:#5d645e;
+  --line:#252a26; --empty:#1f2420; --future:#141715; --ring:#e9ece9;
+  --shadow:0 12px 32px rgba(0,0,0,.45),0 1px 3px rgba(0,0,0,.3);
+  --lshift:-0.05; color-scheme:dark;
+  --glass:rgba(20,23,21,.76); --glass-line:rgba(255,255,255,.08); --veil:rgba(14,16,15,.38); --lead:#0b0d0c;
+}
+*,*::before,*::after{box-sizing:border-box;border-radius:0!important}
+html,body{background:var(--bg)}
+body{color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+
+/* glass mosaic backdrop: canvas tiles in the rating colours, a thin veil, and a frosted panel holding the grid */
+#mosaic,.veil{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
+.veil{background:var(--veil)}
+.shell{position:relative;z-index:1;padding-block:clamp(16px,5vw,56px) 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.page{max-width:1080px;margin:0 auto;padding:clamp(18px,3vw,36px);
+  background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--shadow);
+  -webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4);
+  display:flex;flex-direction:column;gap:28px}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:500;letter-spacing:-.01em}
+.brand-mark{display:grid;grid-template-columns:repeat(3,6px);gap:2px}
+.brand-mark i{width:6px;height:6px;border-radius:1.5px;background:var(--empty)}
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--empty);border-radius:8px;padding:2px}
+.seg button{border:0;background:transparent;padding:5px 10px;border-radius:6px;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.num{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.num input{width:52px;padding:5px 6px;border:1px solid var(--line);background:var(--surface);border-radius:6px;font-family:var(--mono);font-size:13px;text-align:center}
+
+/* heading */
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.title{margin:0;font-weight:300;font-size:clamp(34px,6vw,56px);letter-spacing:-.035em;line-height:1;text-wrap:balance}
+.title b{font-weight:500}
+.yearnav{display:inline-flex;align-items:center;gap:4px}
+.icon-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--muted)}
+.icon-btn:hover:not(:disabled){color:var(--fg)}
+.icon-btn:disabled{opacity:.35;cursor:default}
+.yearnav span{font-family:var(--mono);font-size:13px;min-width:44px;text-align:center}
+
+/* people */
+.people{display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:relative}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;max-width:100%}
+.chip img{width:22px;height:22px;border-radius:50%;flex:none}
+.chip .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.chip[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.mini{display:inline-grid;grid-template-columns:repeat(7,5px);gap:1.5px}
+.mini i{width:5px;height:5px;border-radius:1px;background:var(--empty)}
+.chip.add{padding:5px 12px;color:var(--muted);border-style:dashed}
+.chip.add:hover{color:var(--fg)}
+
+/* today bar */
+.today{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.today .q{font-weight:500}
+.today .q small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.scale{display:flex;gap:4px;flex-wrap:wrap}
+.sw{--L:.7;width:30px;height:30px;border-radius:7px;border:0;font-family:var(--mono);font-size:12px;font-weight:500;color:rgba(0,0,0,.62);
+  background:oklch(calc(var(--L) + var(--lshift)) .16 var(--h));transition:transform .12s ease, box-shadow .12s ease}
+.sw:hover{transform:translateY(-2px)}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--fg)}
+.linkbtn{border:0;background:none;color:var(--muted);font-size:13px;padding:4px 2px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.linkbtn:hover{color:var(--fg)}
+.today .spacer{flex:1}
+
+/* board */
+.board-wrap{overflow-x:auto;padding-bottom:4px;margin-inline:-4px;padding-inline:4px}
+.board{display:grid;grid-template-columns:auto auto;column-gap:8px;row-gap:6px;width:max-content}
+.toplab,.cells{display:grid;grid-template-columns:repeat(var(--cols),var(--cell));gap:var(--gap)}
+.cells{grid-template-rows:repeat(var(--rows),var(--cell))}
+.leftlab{display:grid;grid-template-rows:repeat(var(--rows),var(--cell));gap:var(--gap)}
+.toplab span,.leftlab span{font-family:var(--mono);font-size:10.5px;color:var(--faint);white-space:nowrap;line-height:1}
+.leftlab span{display:flex;align-items:center;justify-content:flex-end}
+.cell{width:var(--cell);height:var(--cell);border-radius:min(3px,calc(var(--cell)/4));border:0;padding:0;background:var(--empty);position:relative;transition:transform .1s ease}
+.cell.future{background:var(--future);cursor:default}
+.cell[data-r]{--L:.7;background:oklch(calc(var(--L) + var(--lshift)) .16 var(--h))}
+.cell.is-today{box-shadow:0 0 0 1.5px var(--fg)}
+.cell:not(.future):hover{transform:scale(1.25);z-index:2}
+.cells.ro .cell{cursor:default}
+.cells.nums .cell[data-r]::before{content:attr(data-r);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:max(7px,calc(var(--cell) * .5));font-weight:500;letter-spacing:-.04em;line-height:1;color:rgba(0,0,0,.62)}
+
+.under{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:12.5px}
+.legend{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px}
+.legend .bar{width:140px;height:8px;border-radius:4px}
+
+/* stats: one quiet line under the grid */
+.stats{display:flex;gap:24px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
+.stat{display:inline-flex;align-items:center;gap:6px}
+.stat b{font-weight:500;color:var(--fg)}
+.statline{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.check{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--faint);cursor:pointer;user-select:none}
+.check:hover{color:var(--fg)}
+.check input{appearance:none;-webkit-appearance:none;width:11px;height:11px;margin:0;border:1px solid var(--faint);background:transparent;display:grid;place-items:center;cursor:pointer}
+.check input:checked{background:var(--fg);border-color:var(--fg)}
+.check input:checked::after{content:"";width:5px;height:2.5px;border-left:1.5px solid var(--bg);border-bottom:1.5px solid var(--bg);transform:translateY(-.5px) rotate(-45deg)}
+.dot{width:8px;height:8px;flex:none;background:var(--empty)}
+.dot[data-r]{--L:.7;background:oklch(calc(var(--L) + var(--lshift)) .16 var(--h))}
+
+.notice{font-size:13px;color:var(--muted);padding:10px 14px;border:1px dashed var(--line);border-radius:10px}
+
+/* tooltip */
+.tip{position:fixed;z-index:50;pointer-events:none;max-width:240px;background:var(--fg);color:var(--bg);border-radius:9px;padding:9px 11px;font-size:12.5px;box-shadow:var(--shadow);opacity:0;transform:translateY(3px);transition:opacity .1s ease,transform .1s ease}
+.tip.on{opacity:1;transform:none}
+.tip .d{font-family:var(--mono);font-size:11px;opacity:.7;display:flex;gap:8px;align-items:center}
+.tip .r{font-weight:600}
+.tip .n{margin-top:5px;white-space:pre-wrap;overflow-wrap:anywhere}
+.tip .e{margin-top:3px;opacity:.6}
+
+/* editor + friend popovers */
+.pop{position:fixed;z-index:60;width:320px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:12px}
+.pop h3{margin:0;font-size:15px;font-weight:500;letter-spacing:-.01em}
+.pop .sub{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.pop .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pop .sw{width:100%;height:34px}
+.pop textarea{width:100%;min-height:72px;resize:vertical;border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:9px 10px;font-size:13.5px;line-height:1.4}
+.pop .foot{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pop .count{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 14px;border-radius:8px;font-size:13px}
+.btn.primary{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn.primary:disabled{opacity:.4;cursor:default}
+.btn-row{display:flex;gap:6px}
+.scrim{position:fixed;inset:0;z-index:55;background:transparent}
+.pop input[type="search"]{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:8px 10px;font-size:13.5px}
+.plist{display:flex;flex-direction:column;gap:2px;max-height:280px;overflow:auto;margin-inline:-6px}
+.prow{display:flex;align-items:center;gap:10px;padding:6px;border-radius:8px}
+.prow:hover{background:var(--bg)}
+.prow img{width:26px;height:26px;border-radius:50%;flex:none}
+.prow .who{flex:1;min-width:0}
+.prow .who div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .who small{color:var(--muted);font-size:11.5px}
+.plabel{font-size:11px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;padding:6px 6px 2px}
+.empty-p{font-size:12.5px;color:var(--muted);padding:6px}
+
+@media (max-width:560px){
+  .pop.sheet{left:0!important;right:0;top:auto!important;bottom:0;width:auto;max-width:none;border-radius:16px 16px 0 0;
+    padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));
+    padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<canvas id="mosaic" aria-hidden="true"></canvas><div class="veil" aria-hidden="true"></div>
+<div class="shell">
+<div class="page">
+  <header class="top">
+    <div class="brand"><span class="brand-mark" id="brandMark" aria-hidden="true"></span>Everyday</div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Grid layout">
+        <button type="button" id="lay-weeks" data-lay="weeks">Weeks</button>
+        <button type="button" id="lay-months" data-lay="months">Months</button>
+        <button type="button" id="lay-custom" data-lay="custom">Custom</button>
+      </div>
+      <label class="num" id="customWrap" hidden>days per column <input id="customN" type="number" min="3" max="60" value="19"></label>
+    </div>
+  </header>
+
+  <div class="head">
+    <h1 class="title" id="title">Your <b>2026</b></h1>
+    <div class="yearnav">
+      <button class="icon-btn" id="prevYear" type="button" aria-label="Previous year">‹</button>
+      <span id="yearLabel">2026</span>
+      <button class="icon-btn" id="nextYear" type="button" aria-label="Next year">›</button>
+    </div>
+  </div>
+
+  <div class="people" id="people"></div>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <section>
+    <div class="board-wrap" id="boardWrap">
+      <div class="board" id="board">
+        <div></div><div class="toplab" id="topLab"></div>
+        <div class="leftlab" id="leftLab"></div><div class="cells" id="cells"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="statline">
+    <div class="stats" id="stats"></div>
+    <label class="check"><input type="checkbox" id="numToggle" checked> numbers</label>
+  </div>
+</div>
+</div>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="pop sheet" id="editor" hidden role="dialog" aria-labelledby="edTitle">
+  <div><h3 id="edTitle">Tuesday</h3><div class="sub" id="edSub"></div></div>
+  <div class="scale" id="edScale"></div>
+  <textarea id="edNote" maxlength="140" placeholder="A small note (only shows on hover)"></textarea>
+  <div class="foot">
+    <span class="count" id="edCount">0/140</span>
+    <div class="btn-row">
+      <button class="btn" id="edClear" type="button">Clear</button>
+      <button class="btn primary" id="edSave" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="pop sheet" id="friendPop" hidden role="dialog" aria-label="Add friends">
+  <h3>Add friends</h3>
+  <input type="search" id="friendSearch" placeholder="Search by name" autocomplete="off">
+  <div class="plist" id="friendList"></div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2, "0");
+  const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const now = new Date();
+  const TODAY = keyOf(now);
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  // 1 = red, 10 = green, through amber; yellow is lifted a touch so the middle doesn't go muddy
+  const hue = r => 25 + (r - 1) / 9 * 120;
+  const light = r => (0.64 + 0.12 * Math.sin((r - 1) / 9 * Math.PI)).toFixed(3);
+  const paint = (el, r) => { el.style.setProperty("--h", hue(r)); el.style.setProperty("--L", light(r)); el.dataset.r = r; };
+  const avgColor = a => Math.max(1, Math.min(10, Math.round(a)));
+
+  const S = {
+    mode: "loading",           // loading | db | local
+    db: null, user: null, me: null,
+    mine: {},                  // date -> {r, n}
+    all: {},                   // uid -> entries
+    friends: [],
+    viewing: null,             // null = me
+    year: now.getFullYear(),
+    layout: { type: "weeks", n: 19 },
+    profiles: {},
+    demoNames: {},             // sample people seeded for testing; real people resolve through profiles
+    readOnly: false,
+  };
+
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+  S.layout = Object.assign(S.layout, store.get("everyday.layout", {}));
+  S.nums = store.get("everyday.numbers", true) !== false;
+
+  // ---------- brand + legend ----------
+  [2,5,9,7,10,4,8,6,9].forEach(r => { const i = document.createElement("i"); paint(i, r); i.style.background = `oklch(calc(${light(r)} + var(--lshift)) .16 ${hue(r)})`; $("brandMark").append(i); });
+
+  // ---------- helpers ----------
+  const entriesOf = uid => uid ? (S.all[uid] || {}) : S.mine;
+  const isLeap = y => new Date(y, 1, 29).getMonth() === 1;
+  const nameOf = uid => uid === S.me || uid == null ? "You" : ((S.profiles[uid] && S.profiles[uid].name) || S.demoNames[uid] || "Someone");
+  const firstName = uid => nameOf(uid).split(" ")[0];
+  const fmtLong = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }); };
+  const fmtShort = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" }); };
+
+  function geometry(year, layout) {
+    const days = isLeap(year) ? 366 : 365;
+    const jan1 = new Date(year, 0, 1);
+    if (layout.type === "months") {
+      return { days, cols: 31, rows: 12, colMajor: false,
+        place: (i, d) => ({ c: d.getDate() - 1, r: d.getMonth() }) };
+    }
+    if (layout.type === "custom") {
+      const n = Math.max(3, Math.min(60, layout.n | 0 || 19));
+      return { days, cols: Math.ceil(days / n), rows: n, colMajor: true, place: i => ({ c: Math.floor(i / n), r: i % n }) };
+    }
+    const off = (jan1.getDay() + 6) % 7; // Monday first
+    return { days, cols: Math.ceil((days + off) / 7), rows: 7, colMajor: true, weeks: true,
+      place: i => ({ c: Math.floor((i + off) / 7), r: (i + off) % 7 }) };
+  }
+
+  // ---------- render ----------
+  function render() {
+    renderControls();
+    renderHead();
+    renderPeople();
+    renderGrid();
+    renderStats();
+  }
+
+  function renderControls() {
+    document.querySelectorAll("[data-lay]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lay === S.layout.type)));
+    $("customWrap").hidden = S.layout.type !== "custom";
+    $("numToggle").checked = S.nums;
+    $("cells").classList.toggle("nums", S.nums);
+    if (document.activeElement !== $("customN")) $("customN").value = S.layout.n;
+  }
+
+  function renderHead() {
+    const t = $("title");
+    t.textContent = "";
+    t.append(S.viewing ? `${firstName(S.viewing)}’s ` : "Your ");
+    const b = document.createElement("b"); b.textContent = S.year; t.append(b);
+    $("yearLabel").textContent = S.year;
+    $("nextYear").disabled = S.year >= now.getFullYear();
+    $("prevYear").disabled = S.year <= 2000;
+  }
+
+  function miniStrip(entries) {
+    const m = document.createElement("span"); m.className = "mini"; m.setAttribute("aria-hidden", "true");
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      const e = entries[keyOf(d)]; const c = document.createElement("i");
+      if (e) c.style.background = `oklch(calc(${light(e.r)} + var(--lshift)) .16 ${hue(e.r)})`;
+      m.append(c);
+    }
+    return m;
+  }
+
+  function chip(uid) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip";
+    b.setAttribute("aria-pressed", String((S.viewing || null) === (uid === S.me ? null : uid)));
+    const p = S.profiles[uid];
+    if (p && p.avatarUrl) { const img = document.createElement("img"); img.src = p.avatarUrl; img.alt = ""; b.append(img); }
+    const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = nameOf(uid); b.append(nm);
+    b.append(miniStrip(uid === S.me ? S.mine : (S.all[uid] || {})));
+    b.onclick = () => { S.viewing = uid === S.me ? null : uid; hideTip(); render(); };
+    return b;
+  }
+
+  let lastProfileKey = "";
+  function renderPeople() {
+    const el = $("people"); el.textContent = "";
+    if (S.mode !== "db") { el.hidden = true; return; }
+    el.hidden = false;
+    el.append(chip(S.me));
+    S.friends.forEach(f => el.append(chip(f)));
+    const add = document.createElement("button");
+    add.type = "button"; add.className = "chip add"; add.id = "addFriend"; add.textContent = "+ Add friend";
+    add.onclick = openFriends; el.append(add);
+    if (S.viewing && S.friends.includes(S.viewing)) {
+      const rm = document.createElement("button");
+      rm.type = "button"; rm.className = "linkbtn"; rm.textContent = `Remove ${firstName(S.viewing)}`;
+      rm.onclick = () => { const id = S.viewing; S.viewing = null; saveFriends(S.friends.filter(x => x !== id)); };
+      el.append(rm);
+    }
+    resolveProfiles([S.me, ...S.friends]);
+  }
+
+  async function resolveProfiles(ids) {
+    if (!S.user || !ids.length) return;
+    const ps = await S.user.profiles(ids);
+    let changed = false;
+    for (const id of Object.keys(ps)) {
+      const o = S.profiles[id], n = ps[id];
+      if (!o || o.name !== n.name || o.avatarUrl !== n.avatarUrl) { S.profiles[id] = n; changed = true; }
+    }
+    if (changed) { renderHead(); renderPeople(); }
+  }
+
+  function renderGrid() {
+    const g = geometry(S.year, S.layout);
+    const entries = entriesOf(S.viewing);
+    const board = $("board"), cells = $("cells"), top = $("topLab"), left = $("leftLab");
+    board.style.setProperty("--cols", g.cols);
+    board.style.setProperty("--rows", g.rows);
+
+    // labels
+    top.textContent = ""; left.textContent = "";
+    if (g.colMajor) {
+      let last = -9;
+      for (let m = 0; m < 12; m++) {
+        const i = Math.round((new Date(S.year, m, 1) - new Date(S.year, 0, 1)) / 864e5);
+        const { c } = g.place(i);
+        if (c - last < 3) continue;
+        const s = document.createElement("span"); s.textContent = MONTHS[m]; s.style.gridColumn = `${c + 1} / span 3`; top.append(s); last = c;
+      }
+      if (g.weeks) ["Mon","","Wed","","Fri","",""].forEach(t => { const s = document.createElement("span"); s.textContent = t; left.append(s); });
+    } else {
+      [1,5,10,15,20,25,30].forEach(d => { const s = document.createElement("span"); s.textContent = d; s.style.gridColumn = `${d} / span 3`; top.append(s); });
+      MONTHS.forEach(t => { const s = document.createElement("span"); s.textContent = t; left.append(s); });
+    }
+    left.hidden = !left.childElementCount;
+
+    // cells
+    const frag = document.createDocumentFragment();
+    const editable = !S.viewing && !S.readOnly && S.mode !== "loading";
+    cells.classList.toggle("ro", !editable);
+    for (let i = 0; i < g.days; i++) {
+      const d = new Date(S.year, 0, 1 + i);
+      const k = keyOf(d);
+      const { c, r } = g.place(i, d);
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "cell"; b.dataset.k = k;
+      b.style.gridColumn = c + 1; b.style.gridRow = r + 1;
+      const e = entries[k];
+      if (k > TODAY) { b.classList.add("future"); b.disabled = true; }
+      else if (e) { paint(b, e.r); if (e.n) b.classList.add("note"); }
+      if (k === TODAY) b.classList.add("is-today");
+      b.setAttribute("aria-label", `${fmtShort(k)}${e ? `, rated ${e.r}` : ""}`);
+      frag.append(b);
+    }
+    cells.textContent = ""; cells.append(frag);
+    sizeCells();
+  }
+
+  function sizeCells() {
+    const g = geometry(S.year, S.layout);
+    const wrap = $("boardWrap");
+    const leftW = $("leftLab").hidden ? 0 : ($("leftLab").offsetWidth || 28) + 8;
+    const gap = g.cols > 60 ? 2 : 3;
+    const avail = wrap.clientWidth - leftW - 8;
+    const size = Math.max(10, Math.min(28, Math.floor((avail - gap * (g.cols - 1)) / g.cols)));
+    $("board").style.setProperty("--cell", size + "px");
+    $("board").style.setProperty("--gap", gap + "px");
+  }
+  new ResizeObserver(() => sizeCells()).observe($("boardWrap"));
+
+  function renderStats() {
+    const entries = entriesOf(S.viewing);
+    const keys = Object.keys(entries).filter(k => k.startsWith(S.year + "-")).sort();
+    const vals = keys.map(k => entries[k].r);
+    const el = $("stats"); el.textContent = "";
+    const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+    const avg = vals.length ? mean(vals) : null;
+
+    // best Monday-start week and best month, each needing at least 3 ratings
+    const byW = {}, byM = {};
+    keys.forEach(k => {
+      const [y,m,d] = k.split("-").map(Number); const dt = new Date(y, m-1, d);
+      const mon = new Date(y, m-1, d - (dt.getDay() + 6) % 7);
+      const wk = keyOf(mon);
+      (byW[wk] = byW[wk] || []).push(entries[k].r);
+      (byM[m-1] = byM[m-1] || []).push(entries[k].r);
+    });
+    const bestOf = obj => { let bk = null, bv = 0; for (const [k, a] of Object.entries(obj)) if (a.length >= 3) { const v = mean(a); if (v > bv) { bv = v; bk = k; } } return bk == null ? null : { k: bk, v: bv }; };
+    const bw = bestOf(byW), bm = bestOf(byM);
+    const fmtDay = d => `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+    const weekLabel = k => { const [y,m,d] = k.split("-").map(Number); return `${fmtDay(new Date(y, m-1, d))}–${fmtDay(new Date(y, m-1, d + 6))}`; };
+
+    const stat = (label, val, score) => {
+      const s = document.createElement("span"); s.className = "stat";
+      const dot = document.createElement("span"); dot.className = "dot"; if (score) paint(dot, avgColor(score));
+      const b = document.createElement("b"); b.textContent = val;
+      s.append(dot, label + " ", b);
+      if (score) s.append(" " + score.toFixed(1));
+      el.append(s);
+    };
+    stat("avg", avg == null ? "–" : avg.toFixed(1));
+    stat("best week", bw ? weekLabel(bw.k) : "–", bw && bw.v);
+    stat("best month", bm ? MONTHS[+bm.k] : "–", bm && bm.v);
+  }
+
+  // ---------- tooltip ----------
+  const tip = $("tip");
+  function showTip(cell) {
+    const k = cell.dataset.k; if (!k) return;
+    const e = entriesOf(S.viewing)[k];
+    tip.textContent = "";
+    const d = document.createElement("div"); d.className = "d"; d.textContent = fmtShort(k);
+    tip.append(d);
+    if (e) {
+      const r = document.createElement("div"); r.className = "r"; r.textContent = `${e.r} / 10`; tip.append(r);
+      if (e.n) { const n = document.createElement("div"); n.className = "n"; n.textContent = e.n; tip.append(n); }
+    } else {
+      const x = document.createElement("div"); x.className = "e";
+      x.textContent = k > TODAY ? "Still ahead" : (!S.viewing && !S.readOnly ? "Not rated · click to rate" : "Not rated");
+      tip.append(x);
+    }
+    const rc = cell.getBoundingClientRect();
+    tip.style.left = "0px"; tip.style.top = "0px"; tip.classList.add("on");
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let x = rc.left + rc.width / 2 - tw / 2; x = Math.max(8, Math.min(innerWidth - tw - 8, x));
+    let y = rc.top - th - 8; if (y < 8) y = rc.bottom + 8;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  function hideTip() { tip.classList.remove("on"); }
+  const cellsEl = $("cells");
+  cellsEl.addEventListener("pointerover", e => { const c = e.target.closest(".cell"); if (c && e.pointerType !== "touch") showTip(c); });
+  cellsEl.addEventListener("pointerleave", hideTip);
+  cellsEl.addEventListener("focusin", e => { const c = e.target.closest(".cell"); if (c) showTip(c); });
+  cellsEl.addEventListener("focusout", hideTip);
+  cellsEl.addEventListener("click", e => {
+    const c = e.target.closest(".cell"); if (!c || c.disabled) return;
+    if (!S.viewing && !S.readOnly && S.mode !== "loading") { hideTip(); openEditor(c.dataset.k, c); }
+    else showTip(c);
+  });
+  addEventListener("scroll", hideTip, { passive: true });
+
+  // ---------- editor ----------
+  let ed = { k: null, r: null };
+  function placePop(pop, anchor) {
+    pop.hidden = false; $("scrim").hidden = false;
+    if (innerWidth <= 560) return;
+    const rc = anchor.getBoundingClientRect();
+    const w = pop.offsetWidth, h = pop.offsetHeight;
+    let x = rc.left + rc.width / 2 - w / 2; x = Math.max(12, Math.min(innerWidth - w - 12, x));
+    let y = rc.bottom + 10; if (y + h > innerHeight - 12) y = Math.max(12, rc.top - h - 10);
+    pop.style.left = x + "px"; pop.style.top = y + "px";
+  }
+  function openEditor(k, anchor) {
+    const e = S.mine[k];
+    ed = { k, r: e ? e.r : null };
+    $("edTitle").textContent = fmtLong(k);
+    $("edSub").textContent = k === TODAY ? "today" : (e ? "rated" : "not rated yet");
+    $("edNote").value = e ? (e.n || "") : "";
+    $("edClear").hidden = !e;
+    renderEdScale();
+    placePop($("editor"), anchor);
+    setTimeout(() => (ed.r ? $("edNote") : $("edScale").querySelector("button")).focus(), 0);
+  }
+  function renderEdScale() {
+    const sc = $("edScale"); sc.textContent = "";
+    for (let r = 1; r <= 10; r++) {
+      const b = document.createElement("button"); b.type = "button"; b.className = "sw"; b.textContent = r; paint(b, r);
+      b.setAttribute("aria-pressed", String(ed.r === r)); b.setAttribute("aria-label", `${r} of 10`);
+      b.onclick = () => { ed.r = r; renderEdScale(); };
+      sc.append(b);
+    }
+    $("edSave").disabled = !ed.r;
+    $("edCount").textContent = `${$("edNote").value.length}/140`;
+  }
+  function closePops() { $("editor").hidden = true; $("friendPop").hidden = true; $("scrim").hidden = true; }
+  $("scrim").onclick = closePops;
+  $("edNote").oninput = () => { $("edCount").textContent = `${$("edNote").value.length}/140`; };
+  $("edSave").onclick = () => { if (!ed.r) return; setEntry(ed.k, ed.r, $("edNote").value.trim()); closePops(); };
+  $("edClear").onclick = () => { setEntry(ed.k, null); closePops(); };
+  $("editor").addEventListener("keydown", e => {
+    if (e.key === "Escape") { closePops(); return; }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("edSave").click(); return; }
+    if (e.target.tagName !== "TEXTAREA" && /^[0-9]$/.test(e.key)) { ed.r = e.key === "0" ? 10 : +e.key; renderEdScale(); }
+  });
+  $("friendPop").addEventListener("keydown", e => { if (e.key === "Escape") closePops(); });
+
+  // ---------- controls ----------
+  document.querySelectorAll("[data-lay]").forEach(b => b.onclick = () => { S.layout.type = b.dataset.lay; store.set("everyday.layout", S.layout); render(); });
+  $("customN").addEventListener("change", () => {
+    const n = Math.max(3, Math.min(60, parseInt($("customN").value, 10) || 19));
+    S.layout.n = n; $("customN").value = n; store.set("everyday.layout", S.layout); render();
+  });
+  $("numToggle").onchange = () => { S.nums = $("numToggle").checked; store.set("everyday.numbers", S.nums); renderControls(); };
+
+  // ---------- glass mosaic background ----------
+  const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; };
+  function drawMosaic() {
+    const cv = $("mosaic"), W = innerWidth, H = innerHeight, dpr = Math.min(2, devicePixelRatio || 1);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    let seed = 20260101; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const dark = isDark();
+    const lead = getComputedStyle(document.documentElement).getPropertyValue("--lead").trim() || (dark ? "#0b0d0c" : "#f4f5f3");
+    g.fillStyle = lead; g.fillRect(0, 0, W, H);
+    const weights = [1, 1, 2, 3, 4, 5, 6, 6, 5, 4];   // lean toward good days, like most years
+    const total = weights.reduce((a, b) => a + b, 0);
+    const pick = () => { let x = rnd() * total; for (let i = 0; i < 10; i++) { x -= weights[i]; if (x <= 0) return i + 1; } return 8; };
+    const col = (r, dl, a) => { const L = Math.max(0.2, +light(r) + (dark ? -0.22 : 0.06) + dl); return `oklch(${L.toFixed(3)} ${dark ? 0.12 : 0.15} ${hue(r)} / ${a})`; };
+    const gap = 2;
+    const glass = pts => {
+      const r = pick(), xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+      const x0 = Math.min(...xs), y0 = Math.min(...ys), x1 = Math.max(...xs), y1 = Math.max(...ys);
+      const ang = rnd();
+      const gr = g.createLinearGradient(x0, y0 + (y1 - y0) * ang, x1, y1 - (y1 - y0) * ang);
+      gr.addColorStop(0, col(r, 0.07, 0.95)); gr.addColorStop(0.55, col(r, 0, 0.9)); gr.addColorStop(1, col(r, -0.06, 0.95));
+      g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath();
+      g.fillStyle = gr; g.fill();
+      // a faint sheen along one edge, like light catching cut glass
+      g.save(); g.clip(); g.globalAlpha = dark ? 0.08 : 0.22; g.fillStyle = "#fff";
+      g.fillRect(x0, y0, x1 - x0, Math.max(2, (y1 - y0) * 0.12)); g.restore();
+    };
+    const tile = (x, y, w, h, depth) => {
+      if (depth < 3 && Math.min(w, h) > 36 && rnd() < 0.62 - depth * 0.12) {
+        const f = 0.3 + rnd() * 0.4;
+        if (w >= h) { tile(x, y, w * f, h, depth + 1); tile(x + w * f, y, w * (1 - f), h, depth + 1); }
+        else { tile(x, y, w, h * f, depth + 1); tile(x, y + h * f, w, h * (1 - f), depth + 1); }
+        return;
+      }
+      const a = x + gap / 2, b = y + gap / 2, c = x + w - gap / 2, d = y + h - gap / 2;
+      if (rnd() < 0.22 && Math.min(w, h) > 24) {
+        const k = gap * 0.7;
+        if (rnd() < 0.5) { glass([[a, b], [c - k, b], [a, d - k]]); glass([[c, b + k], [c, d], [a + k, d]]); }
+        else { glass([[a, b], [c, b], [c, d - k]]); glass([[a, b + k], [c - k, d], [a, d]]); }
+      } else glass([[a, b], [c, b], [c, d], [a, d]]);
+    };
+    const T = W < 600 ? 84 : 128;
+    for (let y = 0; y < H; y += T) for (let x = 0; x < W; x += T) tile(x, y, T, T, 0);
+  }
+  let mosaicT; const redraw = () => { clearTimeout(mosaicT); mosaicT = setTimeout(drawMosaic, 120); };
+  addEventListener("resize", redraw);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawMosaic);
+  new MutationObserver(drawMosaic).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  drawMosaic();
+  $("prevYear").onclick = () => { S.year--; render(); };
+  $("nextYear").onclick = () => { if (S.year < now.getFullYear()) { S.year++; render(); } };
+
+  // ---------- data ----------
+  function notice(msg) { $("notice").hidden = !msg; $("notice").textContent = msg || ""; }
+
+  function setEntry(k, r, n) {
+    if (r == null) delete S.mine[k];
+    else S.mine[k] = n ? { r, n: n.slice(0, 140) } : { r };
+    render(); persist();
+  }
+
+  let writing = false, dirty = false;
+  async function persist() {
+    if (S.mode !== "db") { store.set("everyday.local", S.mine); return; }
+    dirty = true; if (writing) return; writing = true;
+    while (dirty) {
+      dirty = false;
+      try { await S.db.doc("days/" + S.me).set({ e: S.mine, updated: Date.now() }); }
+      catch (err) {
+        const code = err && err.code;
+        if (code === "unavailable") { await new Promise(r => setTimeout(r, 600 + Math.random() * 900)); dirty = true; continue; }
+        if (code === "invalid_argument") { S.readOnly = true; notice("You can look but not rate here. Ask the page owner to give you Contributor access."); render(); }
+        else if (code === "quota_exceeded") notice("This page’s storage is full, so your last change wasn’t saved.");
+        else notice("Your last change couldn’t be saved. Check your connection and try again.");
+        break;
+      }
+    }
+    writing = false;
+  }
+
+  async function saveFriends(list) {
+    S.friends = list; render();
+    try { await S.db.doc(`data/users/${S.me}/me`).set({ friends: list }); }
+    catch { notice("Your friends list couldn’t be saved."); }
+  }
+
+  // friend picker
+  let searchHits = [];
+  function openFriends() {
+    $("friendSearch").value = ""; searchHits = [];
+    renderFriendList();
+    placePop($("friendPop"), $("addFriend"));
+    setTimeout(() => $("friendSearch").focus(), 0);
+    if (S.user) S.user.search("").then(h => { searchHits = h; renderFriendList(); });
+  }
+  $("friendSearch").addEventListener("input", async () => {
+    const q = $("friendSearch").value.trim();
+    if (!S.user) return;
+    searchHits = await S.user.search(q); renderFriendList();
+  });
+  function personRow(id, sub) {
+    const p = S.profiles[id] || {};
+    const row = document.createElement("div"); row.className = "prow";
+    const img = document.createElement("img"); img.alt = ""; if (p.avatarUrl) img.src = p.avatarUrl; else img.hidden = true;
+    const who = document.createElement("div"); who.className = "who";
+    const nm = document.createElement("div"); nm.textContent = nameOf(id);
+    const sm = document.createElement("small"); sm.textContent = sub;
+    who.append(nm, sm);
+    const b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.textContent = "Add";
+    b.onclick = () => { saveFriends([...S.friends, id]); renderFriendList(); };
+    row.append(img, who, b);
+    return row;
+  }
+  function renderFriendList() {
+    const el = $("friendList"); el.textContent = "";
+    const q = $("friendSearch").value.trim().toLowerCase();
+    const skip = new Set([S.me, ...S.friends]);
+    const onApp = Object.keys(S.all).filter(id => !skip.has(id) && Object.keys(S.all[id]).length);
+    resolveProfiles(onApp).then(() => { if (!$("friendPop").hidden) paintList(); });
+    function paintList() {
+      el.textContent = "";
+      const local = onApp.filter(id => !q || nameOf(id).toLowerCase().includes(q));
+      const lbl = t => { const d = document.createElement("div"); d.className = "plabel"; d.textContent = t; el.append(d); };
+      lbl("Rating their days here");
+      if (local.length) local.forEach(id => el.append(personRow(id, `${Object.keys(S.all[id]).length} days rated`)));
+      else { const d = document.createElement("div"); d.className = "empty-p"; d.textContent = onApp.length ? "No match." : "Nobody else yet. Share this page with friends so they can start rating their days."; el.append(d); }
+      const extra = searchHits.filter(h => !skip.has(h.id) && !onApp.includes(h.id));
+      if (extra.length) {
+        lbl("People you know");
+        extra.forEach(h => { S.profiles[h.id] = h; el.append(personRow(h.id, "Hasn’t rated any days yet")); });
+      }
+    }
+    paintList();
+  }
+
+  function startLocal(why) {
+    S.mode = "local";
+    S.mine = store.get("everyday.local", {});
+    notice(why || "Ratings are saved in this browser only. Open this page signed in to sync and add friends.");
+    render();
+  }
+
+  async function init() {
+    render();
+    if (!window.claude || typeof window.claude.use !== "function") { startLocal(); return; }
+    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    S.user = user;
+    const uid = user ? await user.id() : null;
+    if (!db || !uid) { startLocal(); return; }
+    S.db = db; S.me = uid;
+    notice("Loading your year…");
+    const timer = setTimeout(() => notice("Can’t reach your saved days yet. Your ratings will appear once the connection comes back."), 10000);
+    let loaded = false;
+
+    db.collection("days").onSnapshot(snap => {
+      const all = {};
+      snap.docs.forEach(d => { const v = d.data(); all[d.id] = (v && v.e) || {}; if (v && v.demo && typeof v.name === "string") S.demoNames[d.id] = v.name.slice(0, 40) + " (sample)"; });
+      S.all = all;
+      if (!writing && !dirty) S.mine = JSON.parse(JSON.stringify(all[S.me] || {}));
+      if (!loaded && !snap.metadata.fromCache) {
+        loaded = true; clearTimeout(timer);
+        S.mode = "db"; notice("");
+        user.can("data.write").then(ok => { if (ok === false) { S.readOnly = true; notice("You can look but not rate here. Ask the page owner to give you Contributor access."); render(); } });
+      }
+      if (S.mode === "loading" && snap.size) S.mode = "db";
+      render();
+    }, err => { clearTimeout(timer); if (!loaded) startLocal("Couldn’t load saved days, so ratings are kept in this browser for now."); });
+
+    db.doc(`data/users/${uid}/me`).onSnapshot(s => {
+      const f = s.exists ? (s.data().friends || []) : [];
+      S.friends = Array.isArray(f) ? f.filter(x => typeof x === "string") : [];
+      if (S.viewing && !S.friends.includes(S.viewing)) S.viewing = null;
+      render();
+    }, () => {});
+  }
+  init();
+})();
+</script>
