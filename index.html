@@ -75,8 +75,8 @@
         </label>
       </div>
     </main>
-    <footer class="mx-auto mt-3 flex max-w-[1080px] justify-end">
-      <a href="/privacy.html" class="bg-glass px-2 py-1 font-mono text-[11px] text-muted backdrop-blur hover:text-fg">privacy</a>
+    <footer class="mx-auto mt-2 flex max-w-[1080px] justify-end">
+      <a href="/privacy.html" class="font-mono text-[9px] text-fg opacity-15 transition-opacity hover:opacity-60">privacy</a>
     </footer>
   </div>
 
@@ -133,10 +133,10 @@
     <div id="shErr" class="text-[12.5px] text-muted" hidden></div>
   </div>
 
-  <div id="signPop" role="dialog" aria-labelledby="spTitle" class="sheet fixed top-1/2 left-1/2 z-60 flex w-[min(380px,calc(100vw-32px))] -translate-1/2 flex-col gap-3 border border-line bg-surface p-5 shadow-soft" hidden>
+  <div id="signPop" role="dialog" aria-labelledby="spTitle" class="fullsheet fixed top-1/2 left-1/2 z-60 flex w-[min(380px,calc(100vw-32px))] -translate-1/2 flex-col gap-3 border border-line bg-surface p-5 shadow-soft" hidden>
     <h3 id="spTitle" class="text-[15px] font-medium tracking-tight">Sign in to add friends</h3>
     <div id="spErr" class="text-[12.5px] text-muted" hidden></div>
-    <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+    <div class="sheet-actions flex flex-wrap items-center justify-between gap-2 pt-1">
       <button id="spLater" type="button" class="text-[13px] text-muted underline decoration-line underline-offset-3 hover:text-fg">Not now</button>
       <div id="gbtn" class="min-h-10"></div>
       <button id="google" hidden type="button" class="inline-flex items-center gap-2.5 border border-fg bg-fg px-4 py-2 font-medium text-bg">
@@ -146,7 +146,7 @@
     </div>
   </div>
 
-  <div id="onboard" role="dialog" aria-labelledby="obTitle" class="sheet fixed top-1/2 left-1/2 z-60 flex w-80 max-w-[calc(100vw-32px)] -translate-1/2 flex-col gap-3 border border-line bg-surface p-4 shadow-soft" hidden>
+  <div id="onboard" role="dialog" aria-labelledby="obTitle" class="fullsheet fixed top-1/2 left-1/2 z-60 flex w-80 max-w-[calc(100vw-32px)] -translate-1/2 flex-col gap-3 border border-line bg-surface p-4 shadow-soft" hidden>
     <h3 id="obTitle" class="text-[15px] font-medium tracking-tight">Pick your handle</h3>
     <p class="text-[13px] text-muted">Friends find you by this. Lowercase letters, numbers and underscores, 3 to 20 characters.</p>
     <div class="flex items-center border border-line bg-bg">
@@ -154,7 +154,7 @@
       <input type="text" id="obHandle" maxlength="20" autocomplete="off" spellcheck="false" class="w-full bg-transparent px-1 py-2 font-mono text-[13.5px] outline-none">
     </div>
     <div id="obErr" class="text-[12.5px] text-[oklch(.6_.18_25)]" hidden></div>
-    <div class="flex justify-end">
+    <div class="sheet-actions flex justify-end">
       <button id="obSave" type="button" class="border border-fg bg-fg px-3.5 py-1.5 text-[13px] text-bg disabled:opacity-40">Start my year</button>
     </div>
   </div>

@@ -1,7 +1,7 @@
 import { acceptFriend, findByHandle, loadFriendships, removeFriend, requestFriend, toHandle } from "../data/friends";
 import { $, avatar, h } from "../lib/dom";
 import type { Profile } from "../lib/types";
-import { S, profileOf } from "../state";
+import { S, onChange, profileOf } from "../state";
 import { openPop } from "./popover";
 
 type Action = [label: string, run: () => Promise<unknown>, primary?: boolean];
@@ -70,6 +70,8 @@ function renderList() {
 }
 
 export function bindFriendsPanel() {
+  // live updates (an accept, a new request) refresh the open panel, unless someone is mid-search
+  onChange(() => { if (!$("friendPop").hidden && !search().value.trim()) renderList(); });
   search().addEventListener("input", async () => {
     const mine = ++seq;
     // wait for a pause in typing so a partial handle that happens to exist doesn't flash up mid-word

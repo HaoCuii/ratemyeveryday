@@ -70,6 +70,23 @@
 
   .pixelated { image-rendering: crisp-edges; image-rendering: pixelated; }
 
+  /* sign-in and handle picking take the whole screen on phones: one focused step, nothing behind it */
+  @media (max-width: 560px) {
+    .fullsheet {
+      inset: 0 !important; width: auto !important; max-width: none !important; min-height: 100dvh;
+      transform: none !important; translate: none !important;
+      justify-content: center; border: 0;
+      padding-top: max(24px, env(safe-area-inset-top, 0px));
+      padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+      padding-left: max(24px, env(safe-area-inset-left, 0px));
+      padding-right: max(24px, env(safe-area-inset-right, 0px));
+    }
+    .fullsheet h3 { font-size: 28px !important; font-weight: 300 !important; letter-spacing: -.025em; text-align: center; }
+    .fullsheet > p { text-align: center; }
+    /* main action on top, centred; the way out ("Not now") underneath */
+    .fullsheet .sheet-actions { flex-direction: column-reverse !important; align-items: center !important; gap: 18px !important; margin-top: 12px; }
+  }
+
   /* popovers become bottom sheets on phones (beats the inline left/top set by placePop) */
   @media (max-width: 560px) {
     .sheet {

@@ -78,3 +78,36 @@ export async function removeFriend(id: string) {
   for (const k of [...S.loadedYears]) if (k.startsWith(id + ":")) S.loadedYears.delete(k);
   await loadFriendships();
 }
+
+// ---------- live updates ----------
+// When someone sends, accepts, declines or removes a friendship with me, Supabase Realtime pushes the
+// change and the page reloads friendships straight away. A slow poll backs it up in case the realtime
+// connection drops (it reconnects on its own, but changes made while it was down would be missed).
+
+let channel: ReturnType<typeof sb.channel> | null = null;
+let poll: number | undefined;
+let pending: number | undefined;
+
+const refreshSoon = () => {
+  clearTimeout(pending); // several changes can arrive together (e.g. an accept); reload once
+  pending = window.setTimeout(() => void loadFriendships(), 250);
+};
+
+export function watchFriendships() {
+  unwatchFriendships();
+  if (!S.me) return;
+  const me = S.me;
+  channel = sb
+    .channel(`friendships:${me}`)
+    .on("postgres_changes", { event: "*", schema: "everyday", table: "friendships", filter: `addressee=eq.${me}` }, refreshSoon)
+    .on("postgres_changes", { event: "*", schema: "everyday", table: "friendships", filter: `requester=eq.${me}` }, refreshSoon)
+    .subscribe();
+  poll = window.setInterval(() => { if (document.visibilityState === "visible") void loadFriendships(); }, 30_000);
+}
+
+export function unwatchFriendships() {
+  if (channel) void sb.removeChannel(channel);
+  channel = null;
+  clearInterval(poll);
+  clearTimeout(pending);
+}

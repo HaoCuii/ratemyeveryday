@@ -1,7 +1,7 @@
 import "./styles.css";
 import { getMyProfile, onUserChange, signOut } from "./data/auth";
 import { ensureYear, loadLocalDays, moveLocalDaysToAccount } from "./data/days";
-import { loadFriendships } from "./data/friends";
+import { loadFriendships, unwatchFriendships, watchFriendships } from "./data/friends";
 import { THIS_YEAR } from "./lib/dates";
 import { $ } from "./lib/dom";
 import { S, emit, onChange, resetSession, setNotice, signedIn } from "./state";
@@ -65,6 +65,7 @@ async function loadEverything() {
   if (!S.me) return;
   const moved = await moveLocalDaysToAccount(); // days rated before signing in come along
   await loadFriendships();
+  watchFriendships(); // requests and accepts show up live
   await ensureYear([S.me], S.year);
   if (S.year !== THIS_YEAR) await ensureYear([S.me], THIS_YEAR); // for the 7-day strips
   setNotice(moved ? `Moved ${moved} ${moved === 1 ? "day" : "days"} from this browser into your account.` : "");
@@ -74,6 +75,7 @@ bindOnboarding();
 onUserChange(async user => {
   if (!user) {
     // signed out (or never signed in): rate days in this browser
+    unwatchFriendships();
     resetSession();
     loadLocalDays();
     closeOnboarding();
