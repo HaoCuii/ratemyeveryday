@@ -73,7 +73,8 @@
   /* sign-in and handle picking take the whole screen on phones: one focused step, nothing behind it */
   @media (max-width: 560px) {
     .fullsheet {
-      inset: 0 !important; width: auto !important; max-width: none !important; min-height: 100dvh;
+      position: fixed !important; top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
+      width: auto !important; max-width: none !important; min-height: 100dvh; overflow-y: auto;
       transform: none !important; translate: none !important;
       justify-content: center; border: 0;
       padding-top: max(24px, env(safe-area-inset-top, 0px));
