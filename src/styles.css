@@ -75,7 +75,7 @@
     .fullsheet {
       position: fixed !important; top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
       width: auto !important; max-width: none !important; min-height: 100dvh; overflow-y: auto;
-      transform: none !important; translate: none !important;
+      margin: 0 !important; height: auto !important;
       justify-content: center; border: 0;
       padding-top: max(24px, env(safe-area-inset-top, 0px));
       padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
@@ -91,7 +91,7 @@
   /* popovers become bottom sheets on phones (beats the inline left/top set by placePop) */
   @media (max-width: 560px) {
     .sheet {
-      left: 0 !important; right: 0; top: auto !important; bottom: 0; width: auto; max-width: none; transform: none !important; translate: none !important;
+      left: 0 !important; right: 0; top: auto !important; bottom: 0; width: auto !important; max-width: none !important; margin: 0 !important; height: auto !important;
       padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
     }
   }
