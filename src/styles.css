@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/* Design tokens. Light by default, redefined for dark. Tailwind colour utilities (bg-surface, text-muted…) point at these. */
+:root {
+  --bg: #f4f5f3; --surface: #ffffff; --fg: #161917; --muted: #6a706b; --faint: #9aa09b;
+  --line: #e2e5e1; --empty: #e6e9e5; --future: #eff1ee;
+  --glass: rgba(255, 255, 255, .74); --glass-line: rgba(255, 255, 255, .9); --veil: rgba(244, 245, 243, .28);
+  --shadow: 0 12px 32px rgba(18, 24, 20, .10), 0 1px 3px rgba(18, 24, 20, .06);
+  --lshift: 0;            /* nudges heatmap lightness per theme */
+  --cell: 14px; --gap: 3px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e100f; --surface: #171a18; --fg: #e9ece9; --muted: #8a918b; --faint: #5d645e;
+    --line: #252a26; --empty: #1f2420; --future: #141715;
+    --glass: rgba(20, 23, 21, .76); --glass-line: rgba(255, 255, 255, .08); --veil: rgba(14, 16, 15, .38);
+    --shadow: 0 12px 32px rgba(0, 0, 0, .45), 0 1px 3px rgba(0, 0, 0, .3);
+    --lshift: -0.05;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-empty: var(--empty);
+  --color-future: var(--future);
+  --color-glass: var(--glass);
+  --color-glass-line: var(--glass-line);
+  --color-veil: var(--veil);
+  --shadow-soft: var(--shadow);
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@layer base {
+  html, body { background: var(--bg); color: var(--fg); }
+  body { font-family: var(--font-sans); font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  [hidden] { display: none !important; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+}
+
+/* Things utilities can't express cleanly: computed heatmap colour, pseudo-element numbers, the checkbox tick, pixel scaling. */
+@layer components {
+  .heat { --L: .7; background: oklch(calc(var(--L) + var(--lshift)) .16 var(--h)); }
+
+  .cell { width: var(--cell); height: var(--cell); position: relative; background: var(--empty); transition: transform .1s ease; }
+  .cell.future { background: var(--future); cursor: default; }
+  .cell[data-r] { --L: .7; background: oklch(calc(var(--L) + var(--lshift)) .16 var(--h)); }
+  .cell.is-today { box-shadow: 0 0 0 1.5px var(--fg); }
+  .cell:not(.future):hover { transform: scale(1.25); z-index: 2; }
+  .cells.ro .cell { cursor: default; }
+  .cells.nums .cell[data-r]::before {
+    content: attr(data-r); position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: max(7px, calc(var(--cell) * .5)); font-weight: 500; letter-spacing: -.04em; line-height: 1;
+    color: rgba(0, 0, 0, .62);
+  }
+  .grid-cols-board { grid-template-columns: repeat(var(--cols), var(--cell)); }
+  .grid-rows-board { grid-template-rows: repeat(var(--rows), var(--cell)); }
+
+  .tick { appearance: none; width: 11px; height: 11px; margin: 0; border: 1px solid var(--faint); display: grid; place-items: center; cursor: pointer; }
+  .tick:checked { background: var(--fg); border-color: var(--fg); }
+  .tick:checked::after { content: ""; width: 5px; height: 2.5px; border-left: 1.5px solid var(--bg); border-bottom: 1.5px solid var(--bg); transform: translateY(-.5px) rotate(-45deg); }
+
+  .pixelated { image-rendering: crisp-edges; image-rendering: pixelated; }
+
+  /* popovers become bottom sheets on phones (beats the inline left/top set by placePop) */
+  @media (max-width: 560px) {
+    .sheet {
+      left: 0 !important; right: 0; top: auto !important; bottom: 0; width: auto; max-width: none; transform: none !important; translate: none !important;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
