@@ -37,7 +37,12 @@ export const S: State = {
   notice: "",
 };
 
+/** Key in S.days for ratings kept in this browser while signed out. */
+export const LOCAL = "local";
+
 export const signedIn = () => !!S.me && !!S.profile;
+/** Signed out and using the app on this device only. */
+export const browserOnly = () => !S.me;
 
 export function resetSession() {
   Object.assign(S, {
@@ -58,5 +63,5 @@ export function setNotice(msg: string) {
 
 export const profileOf = (uid: string): Partial<Profile> => S.profiles[uid] ?? {};
 export const nameOf = (uid: string | null) =>
-  !uid || uid === S.me ? "You" : profileOf(uid).name || "@" + (profileOf(uid).handle ?? "someone");
+  !uid || uid === S.me || uid === LOCAL ? "You" : profileOf(uid).name || "@" + (profileOf(uid).handle ?? "someone");
 export const firstName = (uid: string | null) => nameOf(uid).split(" ")[0];

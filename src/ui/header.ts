@@ -5,8 +5,10 @@ import { keyOf, NOW, THIS_YEAR } from "../lib/dates";
 import { $, avatar, h } from "../lib/dom";
 import { prefs } from "../lib/storage";
 import type { Entries, LayoutType } from "../lib/types";
-import { S, emit, firstName, nameOf, profileOf, signedIn } from "../state";
+import { LOCAL, S, browserOnly, emit, firstName, nameOf, profileOf, signedIn } from "../state";
 import { openFriends } from "./friends-panel";
+import { mountLogo } from "./logo";
+import { openSignIn } from "./signin";
 import { hideTip } from "./tooltip";
 
 export function renderHeader() {
@@ -18,7 +20,7 @@ export function renderHeader() {
   if (document.activeElement !== n) n.value = String(S.layout.n);
   $<HTMLInputElement>("numToggle").checked = S.nums;
   $("acct").hidden = !signedIn();
-  $("signin").hidden = !!S.me;
+  $("signInTop").hidden = !browserOnly();
   if (S.profile) {
     $("acctHandle").textContent = "@" + S.profile.handle;
     const img = $<HTMLImageElement>("acctImg");
@@ -53,7 +55,7 @@ function miniStrip(entries: Entries) {
 const chipCls = "inline-flex max-w-full items-center gap-2 border border-line bg-surface py-[5px] pr-2.5 pl-[5px] text-[13px] aria-pressed:border-fg aria-pressed:shadow-[inset_0_0_0_1px_var(--fg)]";
 
 function chip(uid: string) {
-  const isMe = uid === S.me;
+  const isMe = uid === S.me || uid === LOCAL;
   const b = h("button", { type: "button", class: chipCls, "aria-pressed": String(isMe ? !S.viewing : S.viewing === uid) },
     avatar(isMe ? S.profile?.avatar_url : profileOf(uid).avatar_url),
     h("span", { class: "max-w-[140px] truncate" }, nameOf(uid)),
@@ -62,17 +64,26 @@ function chip(uid: string) {
     S.viewing = isMe ? null : uid;
     hideTip();
     emit();
-    await ensureYear([uid], S.year);
+    if (uid !== LOCAL) await ensureYear([uid], S.year);
   });
   return b;
 }
 
+const addCls = "inline-flex items-center gap-2 border border-dashed border-line bg-surface px-3 py-[5px] text-[13px] text-muted hover:text-fg";
+
 function renderPeople() {
   const el = $("people");
+  // signed out: your browser grid, plus a Friends button that asks you to sign in
+  if (browserOnly()) {
+    el.hidden = false;
+    const add = h("button", { type: "button", id: "addFriend", class: addCls }, "+ Friends");
+    add.addEventListener("click", () => openSignIn());
+    return el.replaceChildren(chip(LOCAL), add);
+  }
   el.hidden = !signedIn();
   if (!signedIn() || !S.me) return el.replaceChildren();
 
-  const add = h("button", { type: "button", id: "addFriend", class: "inline-flex items-center gap-2 border border-dashed border-line bg-surface px-3 py-[5px] text-[13px] text-muted hover:text-fg" },
+  const add = h("button", { type: "button", id: "addFriend", class: addCls },
     "+ Friends",
     S.incoming.length ? h("span", { class: "bg-fg px-1.5 font-mono text-[11px] text-bg" }, String(S.incoming.length)) : null);
   add.addEventListener("click", () => openFriends(add));
@@ -105,10 +116,5 @@ export function bindHeader(changeYear: (dir: 1 | -1) => void) {
   $("prevYear").addEventListener("click", () => changeYear(-1));
   $("nextYear").addEventListener("click", () => { if (S.year < THIS_YEAR) changeYear(1); });
 
-  // brand mark: nine little rating squares
-  $("brandMark").replaceChildren(...[2, 5, 9, 7, 10, 4, 8, 6, 9].map(r => {
-    const i = h("i", { class: "size-1.5" });
-    i.style.background = cssColor(r);
-    return i;
-  }));
+  mountLogo($<HTMLCanvasElement>("brandMark"));
 }

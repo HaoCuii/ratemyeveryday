@@ -18,6 +18,8 @@ export function closePops() {
   if (!$("onboard").hidden) return; // a handle must be chosen before anything else
   $("editor").hidden = true;
   $("friendPop").hidden = true;
+  $("sharePop").hidden = true;
+  $("signPop").hidden = true;
   $("scrim").hidden = true;
 }
 

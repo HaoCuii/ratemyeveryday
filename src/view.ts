@@ -1,16 +1,11 @@
-import { makeDemo } from "./demo";
 import type { Entries } from "./lib/types";
-import { S, signedIn } from "./state";
+import { LOCAL, S, browserOnly, signedIn } from "./state";
 
-let demo: { year: number; entries: Entries } | null = null;
-
-/** Whose grid is on screen right now: a friend's, mine, or the example year when signed out. */
+/** Whose grid is on screen right now: a friend's, mine in my account, or mine in this browser. */
 export function visibleEntries(): Entries {
-  if (!S.me) {
-    if (demo?.year !== S.year) demo = { year: S.year, entries: makeDemo(S.year) };
-    return demo.entries;
-  }
+  if (!S.me) return S.days[LOCAL] ?? {};
   return S.days[S.viewing ?? S.me] ?? {};
 }
 
-export const canEdit = () => signedIn() && !S.viewing;
+/** You can rate your own grid, signed in or not (but not while picking a handle, or on a friend's). */
+export const canEdit = () => !S.viewing && (browserOnly() || signedIn());

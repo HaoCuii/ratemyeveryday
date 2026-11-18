@@ -2,7 +2,7 @@ import { clearDay, saveDay } from "../data/days";
 import { paint } from "../lib/color";
 import { fmtLong, TODAY } from "../lib/dates";
 import { $, h } from "../lib/dom";
-import { S } from "../state";
+import { visibleEntries } from "../view";
 import { closePops, openPop } from "./popover";
 
 let day = "";
@@ -11,7 +11,7 @@ let rating: number | null = null;
 const note = () => $<HTMLTextAreaElement>("edNote");
 
 export function openEditor(k: string, anchor: Element) {
-  const e = S.me ? S.days[S.me]?.[k] : undefined;
+  const e = visibleEntries()[k];
   day = k;
   rating = e?.r ?? null;
   $("edTitle").textContent = fmtLong(k);

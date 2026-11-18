@@ -29,18 +29,19 @@ export async function loadProfiles(ids: string[]) {
   for (const p of data ?? []) S.profiles[p.id] = p;
 }
 
-/** Find people by handle prefix or name substring. Input is reduced to [a-z0-9_] so it can't break the filter. */
-export async function searchProfiles(raw: string): Promise<Profile[]> {
-  const q = raw.toLowerCase().replace(/^@/, "").replace(/[^a-z0-9_ ]/g, "").trim().split(/\s+/)[0] ?? "";
-  if (q.length < 2 || !S.me) return [];
-  const { data } = await sb
-    .from("profiles")
-    .select(PROFILE_COLS)
-    .or(`handle.ilike.${q}*,name.ilike.*${q}*`)
-    .neq("id", S.me)
-    .limit(8);
-  for (const p of data ?? []) S.profiles[p.id] = p;
-  return data ?? [];
+/** Turn what was typed into a handle, or null if it can't be one ("@Hao_Cui " → "hao_cui"). */
+export function toHandle(raw: string): string | null {
+  const q = raw.trim().replace(/^@/, "").toLowerCase();
+  return /^[a-z0-9_]{3,20}$/.test(q) ? q : null;
+}
+
+/** Look someone up by their exact handle only, so nobody can browse the list of people by typing a few letters. */
+export async function findByHandle(raw: string): Promise<Profile | null> {
+  const handle = toHandle(raw);
+  if (!handle || !S.me || handle === S.profile?.handle) return null;
+  const { data } = await sb.from("profiles").select(PROFILE_COLS).eq("handle", handle).maybeSingle();
+  if (data) S.profiles[data.id] = data;
+  return data;
 }
 
 export async function requestFriend(id: string) {

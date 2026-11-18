@@ -1,4 +1,4 @@
-import { acceptFriend, loadFriendships, removeFriend, requestFriend, searchProfiles } from "../data/friends";
+import { acceptFriend, findByHandle, loadFriendships, removeFriend, requestFriend, toHandle } from "../data/friends";
 import { $, avatar, h } from "../lib/dom";
 import type { Profile } from "../lib/types";
 import { S, profileOf } from "../state";
@@ -45,8 +45,8 @@ function renderList() {
   const out: Node[] = [];
   const q = search().value.trim();
   if (q) {
-    out.push(heading("Results"));
-    if (!hits.length) out.push(empty(q.replace(/^@/, "").length < 2 ? "Keep typing…" : "No one found with that handle or name."));
+    out.push(heading("Result"));
+    if (!hits.length) out.push(empty(toHandle(q) ? `No one has the handle @${toHandle(q)}.` : "Type their full @handle."));
     for (const { id } of hits) {
       if (S.friends.includes(id)) out.push(row(id, "Friends", []));
       else if (S.outgoing.includes(id)) out.push(row(id, "Request sent", [["Cancel", () => removeFriend(id)]]));
@@ -72,9 +72,12 @@ function renderList() {
 export function bindFriendsPanel() {
   search().addEventListener("input", async () => {
     const mine = ++seq;
-    const result = await searchProfiles(search().value);
+    // wait for a pause in typing so a partial handle that happens to exist doesn't flash up mid-word
+    await new Promise(r => setTimeout(r, 400));
+    if (mine !== seq) return;
+    const found = await findByHandle(search().value);
     if (mine !== seq) return; // a newer keystroke already answered
-    hits = result;
+    hits = found ? [found] : [];
     renderList();
   });
 }

@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Everyday</title>
+  <title>ratemyeveryday</title>
   <meta name="description" content="Rate every day from 1 to 10 and watch your year turn into a heatmap.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 3' shape-rendering='crispEdges'%3E%3Crect width='1' height='1' fill='%23e5534b'/%3E%3Crect x='1' width='1' height='1' fill='%23e9a23b'/%3E%3Crect x='2' width='1' height='1' fill='%2357ab5a'/%3E%3Crect y='1' width='1' height='1' fill='%23c9b52f'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%2357ab5a'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23e9a23b'/%3E%3Crect y='2' width='1' height='1' fill='%2357ab5a'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23e5534b'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%2357ab5a'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:,">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 </head>
 <body class="min-h-screen">
-  <!-- pixel-art backdrop -->
-  <canvas id="mosaic" class="pixelated pointer-events-none fixed inset-0 z-0 h-screen w-screen object-cover object-left-bottom" aria-hidden="true"></canvas>
+  <!-- oil-paint backdrop -->
+  <canvas id="mosaic" class="pointer-events-none fixed inset-0 z-0 h-screen w-screen object-cover object-left-bottom" aria-hidden="true"></canvas>
   <div class="pointer-events-none fixed inset-0 z-0 bg-veil" aria-hidden="true"></div>
 
   <div class="relative z-1 px-4 pt-[clamp(16px,5vw,56px)] pb-16">
@@ -20,7 +20,7 @@
 
       <header class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2.5 font-medium tracking-tight">
-          <span id="brandMark" class="grid grid-cols-[repeat(3,6px)] gap-0.5" aria-hidden="true"></span>Everyday
+          <canvas id="brandMark" class="size-[26px]" aria-hidden="true"></canvas>ratemyeveryday
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <div class="inline-flex bg-empty p-0.5" role="group" aria-label="Grid layout">
@@ -32,6 +32,7 @@
             days per column
             <input id="customN" type="number" min="3" max="60" value="19" class="w-13 border border-line bg-surface px-1.5 py-1 text-center font-mono text-[13px]">
           </label>
+          <button id="signInTop" type="button" class="text-[13px] text-muted underline decoration-line underline-offset-3 hover:text-fg" hidden>Sign in</button>
           <span id="acct" class="inline-flex items-center gap-2 text-[12.5px] text-muted" hidden>
             <img id="acctImg" alt="" class="size-[22px]" referrerpolicy="no-referrer">
             <span id="acctHandle"></span>
@@ -43,18 +44,14 @@
       <div class="flex flex-wrap items-end justify-between gap-4">
         <h1 id="title" class="m-0 text-[clamp(34px,6vw,56px)] leading-none font-light tracking-[-.035em] text-balance [&_b]:font-medium">Your <b>2026</b></h1>
         <div class="inline-flex items-center gap-1">
+          <button id="shareBtn" type="button" class="mr-2 inline-flex h-[30px] items-center gap-1.5 border border-line bg-surface px-3 text-[13px] text-muted hover:text-fg">
+            <svg viewBox="0 0 16 16" class="size-3.5" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 10V2M5 5l3-3 3 3M3 9v5h10V9"/></svg>
+            Share
+          </button>
           <button id="prevYear" type="button" aria-label="Previous year" class="grid size-[30px] place-items-center border border-line bg-surface text-muted hover:text-fg disabled:cursor-default disabled:opacity-35">‹</button>
           <span id="yearLabel" class="min-w-11 text-center font-mono text-[13px]">2026</span>
           <button id="nextYear" type="button" aria-label="Next year" class="grid size-[30px] place-items-center border border-line bg-surface text-muted hover:text-fg disabled:cursor-default disabled:opacity-35">›</button>
         </div>
-      </div>
-
-      <div id="signin" class="flex flex-wrap items-center justify-between gap-4 border border-line bg-surface px-[18px] py-4" hidden>
-        <p class="m-0 max-w-[52ch] text-muted"><b class="font-medium text-fg">Rate every day from 1 to 10.</b> Leave a note only you and your friends can see on hover, and watch the year turn into a heatmap. The grid below is an example.</p>
-        <button id="google" type="button" class="inline-flex items-center gap-2.5 border border-fg bg-fg px-4 py-2 font-medium text-bg">
-          <svg viewBox="0 0 48 48" class="box-content size-4 bg-white p-0.5" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
-          Continue with Google
-        </button>
       </div>
 
       <div id="people" class="flex flex-wrap items-center gap-2" hidden></div>
@@ -102,9 +99,47 @@
 
   <div id="friendPop" role="dialog" aria-label="Friends" class="sheet fixed z-60 flex w-80 max-w-[calc(100vw-32px)] flex-col gap-3 border border-line bg-surface p-4 shadow-soft" hidden>
     <h3 class="text-[15px] font-medium tracking-tight">Friends</h3>
-    <input type="search" id="friendSearch" placeholder="Find someone by @handle or name" autocomplete="off" class="w-full border border-line bg-bg px-2.5 py-2 text-[13.5px]">
+    <input type="search" id="friendSearch" placeholder="Their exact @handle" autocomplete="off" class="w-full border border-line bg-bg px-2.5 py-2 text-[13.5px]">
     <div id="friendList" class="-mx-1.5 flex max-h-[300px] flex-col gap-0.5 overflow-auto"></div>
     <div id="myHandleLine" class="font-mono text-xs text-muted"></div>
+  </div>
+
+  <div id="sharePop" role="dialog" aria-labelledby="shTitle" class="sheet fixed top-1/2 left-1/2 z-60 flex w-[min(720px,calc(100vw-32px))] -translate-1/2 flex-col gap-4 border border-line bg-surface p-5 shadow-soft" hidden>
+    <div class="flex items-center justify-between gap-3">
+      <h3 id="shTitle" class="text-[15px] font-medium tracking-tight">Share your year</h3>
+      <button id="shClose" type="button" aria-label="Close" class="text-muted hover:text-fg">✕</button>
+    </div>
+    <div class="max-h-[50vh] overflow-auto border border-line bg-white p-2">
+      <img id="shPreview" alt="Preview of the heatmap image" class="mx-auto block h-auto max-w-full">
+    </div>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-4">
+        <label class="inline-flex cursor-pointer items-center gap-1.5 font-mono text-[12px] text-muted select-none hover:text-fg">
+          <input type="checkbox" id="shNums" class="tick"> numbers
+        </label>
+        <div class="inline-flex bg-empty p-0.5" role="group" aria-label="File type">
+          <button type="button" data-fmt="png" class="px-2.5 py-1 font-mono text-[12px] text-muted aria-pressed:bg-surface aria-pressed:text-fg aria-pressed:shadow-sm">PNG</button>
+          <button type="button" data-fmt="pdf" class="px-2.5 py-1 font-mono text-[12px] text-muted aria-pressed:bg-surface aria-pressed:text-fg aria-pressed:shadow-sm">PDF</button>
+        </div>
+      </div>
+      <div class="flex gap-1.5">
+        <button id="shShare" type="button" class="border border-line bg-surface px-3.5 py-1.5 text-[13px]" hidden>Share…</button>
+        <button id="shDownload" type="button" class="border border-fg bg-fg px-3.5 py-1.5 text-[13px] text-bg disabled:opacity-40">Download</button>
+      </div>
+    </div>
+    <div id="shErr" class="text-[12.5px] text-muted" hidden></div>
+  </div>
+
+  <div id="signPop" role="dialog" aria-labelledby="spTitle" class="sheet fixed top-1/2 left-1/2 z-60 flex w-[min(380px,calc(100vw-32px))] -translate-1/2 flex-col gap-3 border border-line bg-surface p-5 shadow-soft" hidden>
+    <h3 id="spTitle" class="text-[15px] font-medium tracking-tight">Sign in to add friends</h3>
+    <div id="spErr" class="text-[12.5px] text-muted" hidden></div>
+    <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+      <button id="spLater" type="button" class="text-[13px] text-muted underline decoration-line underline-offset-3 hover:text-fg">Not now</button>
+      <button id="google" type="button" class="inline-flex items-center gap-2.5 border border-fg bg-fg px-4 py-2 font-medium text-bg">
+        <svg viewBox="0 0 48 48" class="box-content size-4 bg-white p-0.5" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+    </div>
   </div>
 
   <div id="onboard" role="dialog" aria-labelledby="obTitle" class="sheet fixed top-1/2 left-1/2 z-60 flex w-80 max-w-[calc(100vw-32px)] -translate-1/2 flex-col gap-3 border border-line bg-surface p-4 shadow-soft" hidden>
