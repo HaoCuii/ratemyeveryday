@@ -59,6 +59,54 @@ export type Database = {
         }
         Relationships: []
       }
+      note_keys: {
+        Row: {
+          check_ct: string
+          check_iv: string
+          created_at: string
+          salt: string
+          user_id: string
+        }
+        Insert: {
+          check_ct: string
+          check_iv: string
+          created_at?: string
+          salt: string
+          user_id: string
+        }
+        Update: {
+          check_ct?: string
+          check_iv?: string
+          created_at?: string
+          salt?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notes: {
+        Row: {
+          ct: string
+          day: string
+          iv: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ct: string
+          day: string
+          iv: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ct?: string
+          day?: string
+          iv?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -89,6 +137,13 @@ export type Database = {
     }
     Functions: {
       are_friends: { Args: { a: string; b: string }; Returns: boolean }
+      my_legacy_notes: {
+        Args: never
+        Returns: {
+          day: string
+          note: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

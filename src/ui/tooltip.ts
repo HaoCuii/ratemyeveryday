@@ -1,5 +1,6 @@
 import { fmtShort, TODAY } from "../lib/dates";
 import { $, h } from "../lib/dom";
+import { S } from "../state";
 import { canEdit, visibleEntries } from "../view";
 
 /** The hover card: date, rating, and the note (notes are only ever shown here). */
@@ -11,7 +12,9 @@ export function showTip(cell: HTMLElement) {
   const body: (Node | string)[] = [h("div", { class: "font-mono text-[11px] opacity-70" }, fmtShort(k))];
   if (e) {
     body.push(h("div", { class: "font-semibold" }, `${e.r} / 10`));
-    if (e.n) body.push(h("div", { class: "mt-1 whitespace-pre-wrap wrap-anywhere" }, e.n));
+    // notes are private: never shown on a friend's grid; mine show once unlocked on this device
+    if (!S.viewing && e.n) body.push(h("div", { class: "mt-1 whitespace-pre-wrap wrap-anywhere" }, e.n));
+    else if (!S.viewing && e.locked) body.push(h("div", { class: "mt-1 opacity-60" }, "Private note · click to unlock"));
   } else {
     const msg = k > TODAY ? "Still ahead" : canEdit() ? "Not rated · click to rate" : "Not rated";
     body.push(h("div", { class: "mt-0.5 opacity-60" }, msg));

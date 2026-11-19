@@ -2,6 +2,7 @@ import "./styles.css";
 import { getMyProfile, onUserChange, signOut } from "./data/auth";
 import { ensureYear, loadLocalDays, moveLocalDaysToAccount } from "./data/days";
 import { loadFriendships, unwatchFriendships, watchFriendships } from "./data/friends";
+import { initNotes, lockNotes } from "./data/notes";
 import { THIS_YEAR } from "./lib/dates";
 import { $ } from "./lib/dom";
 import { S, emit, onChange, resetSession, setNotice, signedIn } from "./state";
@@ -58,12 +59,13 @@ bindHeader(async dir => {
   if (signedIn() && S.me) await ensureYear([S.viewing ?? S.me], S.year);
 });
 bindSignIn();
-$("signOut").addEventListener("click", () => void signOut());
+$("signOut").addEventListener("click", async () => { await lockNotes(); await signOut(); }); // forget this device's notes key
 
 // ---------- session ----------
 async function loadEverything() {
   if (!S.me) return;
   const moved = await moveLocalDaysToAccount(); // days rated before signing in come along
+  await initNotes(); // remembered notes key on this device, if any; encrypts any leftover plaintext notes
   await loadFriendships();
   watchFriendships(); // requests and accepts show up live
   await ensureYear([S.me], S.year);
