@@ -58,9 +58,13 @@ export function drawLogo(cv: HTMLCanvasElement, size: number, dpr = Math.max(1, 
 /** Paint the header logo and use the same painting as the browser-tab icon. */
 export function mountLogo(cv: HTMLCanvasElement) {
   drawLogo(cv, 26);
-  const fav = document.createElement("canvas");
-  drawLogo(fav, 32, 2);
-  let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-  if (!link) { link = document.createElement("link"); link.rel = "icon"; document.head.append(link); }
-  link.href = fav.toDataURL("image/png");
+  // the tab icon can wait until the page is idle (index.html already points at a static one)
+  const later = window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 1500));
+  later(() => {
+    const fav = document.createElement("canvas");
+    drawLogo(fav, 32, 2);
+    let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (!link) { link = document.createElement("link"); link.rel = "icon"; document.head.append(link); }
+    link.href = fav.toDataURL("image/png");
+  });
 }

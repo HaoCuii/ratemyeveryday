@@ -40,8 +40,8 @@ export function makeField(seed: number, scale: number) {
   };
 }
 
-/** The heatmap scale as plain RGB: `at(v)` blends continuously over 1 → 10, `rating(r)` is one step. */
-export function makePalette(dark: boolean) {
+/** The ten heatmap colours as plain RGB (needs the DOM to convert oklch, so call it on the page). */
+export function paletteSteps(dark: boolean): RGB[] {
   const probe = document.createElement("canvas").getContext("2d", { willReadFrequently: true })!;
   const steps: RGB[] = [];
   for (let r = 1; r <= 10; r++) {
@@ -51,6 +51,16 @@ export function makePalette(dark: boolean) {
     const d = probe.getImageData(0, 0, 1, 1).data;
     steps.push([d[0], d[1], d[2]]);
   }
+  return steps;
+}
+
+/** The heatmap scale as plain RGB: `at(v)` blends continuously over 1 → 10, `rating(r)` is one step. */
+export function makePalette(dark: boolean) {
+  return paletteFrom(paletteSteps(dark));
+}
+
+/** Same, from precomputed steps (usable inside a worker). */
+export function paletteFrom(steps: RGB[]) {
   const at = (v: number): RGB => {
     const f = clamp01(v) * 9, i = Math.min(8, Math.floor(f)), t = f - i;
     const a = steps[i], b = steps[i + 1];

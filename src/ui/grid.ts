@@ -37,10 +37,40 @@ const label = (text: string, col?: string) => {
   return s;
 };
 
+/** The cell buttons, one per day of the year, kept between renders so only changed days are touched. */
+let built = "";
+let cellEls: HTMLButtonElement[] = [];
+const shown: (number | undefined)[] = [];
+
+/** Colour one cell for its rating (or none); skipped when it already shows that. */
+function setCell(b: HTMLButtonElement, i: number, k: string, r: number | undefined) {
+  if (shown[i] === r) return;
+  shown[i] = r;
+  b.setAttribute("aria-label", `${fmtShort(k)}${r ? `, rated ${r}` : ""}`);
+  if (r) paint(b, r);
+  else { delete b.dataset.r; b.style.removeProperty("--h"); b.style.removeProperty("--L"); }
+}
+
 export function renderGrid() {
-  const g = geometry(S.year, S.layout);
   const entries = visibleEntries();
-  const board = $("board"), cells = $("cells"), top = $("topLab"), left = $("leftLab");
+  const cells = $("cells");
+  cells.classList.toggle("ro", !canEdit());
+  cells.classList.toggle("nums", S.nums);
+
+  // same year and layout as last time: just recolour the days that changed
+  const shape = `${S.year}|${S.layout.type}|${S.layout.n}`;
+  if (shape === built) {
+    cellEls.forEach((b, i) => {
+      const k = b.dataset.k!;
+      if (k <= TODAY) setCell(b, i, k, entries[k]?.r);
+    });
+    return;
+  }
+  built = shape;
+  shown.length = 0;
+
+  const g = geometry(S.year, S.layout);
+  const board = $("board"), top = $("topLab"), left = $("leftLab");
   board.style.setProperty("--cols", String(g.cols));
   board.style.setProperty("--rows", String(g.rows));
 
@@ -64,20 +94,19 @@ export function renderGrid() {
   left.hidden = !left.childElementCount;
 
   // day cells
-  cells.classList.toggle("ro", !canEdit());
-  cells.classList.toggle("nums", S.nums);
   const frag = document.createDocumentFragment();
+  cellEls = [];
   for (let i = 0; i < g.days; i++) {
     const d = new Date(S.year, 0, 1 + i);
     const k = keyOf(d);
     const { c, r } = g.place(i, d);
-    const e = entries[k];
-    const b = h("button", { type: "button", class: "cell", "data-k": k, "aria-label": `${fmtShort(k)}${e ? `, rated ${e.r}` : ""}` });
+    const b = h("button", { type: "button", class: "cell", "data-k": k });
     b.style.gridColumn = String(c + 1);
     b.style.gridRow = String(r + 1);
-    if (k > TODAY) { b.classList.add("future"); b.disabled = true; }
-    else if (e) paint(b, e.r);
+    if (k > TODAY) { b.classList.add("future"); b.disabled = true; b.setAttribute("aria-label", fmtShort(k)); }
+    else { shown[i] = -1; setCell(b, i, k, entries[k]?.r); }
     if (k === TODAY) b.classList.add("is-today");
+    cellEls.push(b);
     frag.append(b);
   }
   cells.replaceChildren(frag);
