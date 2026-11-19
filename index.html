@@ -84,7 +84,7 @@
   <div id="tip" role="tooltip" class="pointer-events-none fixed z-50 max-w-60 translate-y-[3px] bg-fg px-[11px] py-[9px] text-[12.5px] text-bg opacity-0 shadow-soft transition [&.on]:translate-y-0 [&.on]:opacity-100"></div>
   <div id="scrim" class="fixed inset-0 z-55 [&.dim]:bg-black/25" hidden></div>
 
-  <div id="editor" role="dialog" aria-labelledby="edTitle" class="sheet fixed z-60 flex w-80 max-w-[calc(100vw-32px)] flex-col gap-3 border border-line bg-surface p-4 shadow-soft" hidden>
+  <div id="editor" role="dialog" aria-labelledby="edTitle" class="sheet fixed z-60 flex max-h-[calc(100dvh-24px)] w-80 max-w-[calc(100vw-32px)] flex-col overflow-y-auto gap-3 border border-line bg-surface p-4 shadow-soft" hidden>
     <div>
       <h3 id="edTitle" class="text-[15px] font-medium tracking-tight">Day</h3>
       <div id="edSub" class="font-mono text-xs text-muted"></div>

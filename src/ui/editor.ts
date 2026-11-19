@@ -85,10 +85,19 @@ async function submitLock() {
     if (p.length < 8) return err("Use at least 8 characters.");
     if (p !== pass2().value) return err("Those don’t match.");
   } else if (!p) return err("Enter your passphrase.");
+  // the browser only offers encryption on secure (https) pages
+  if (!window.isSecureContext || !crypto?.subtle) {
+    return err("Private notes need a secure connection. Open this site with https:// and try again.");
+  }
   const btn = $<HTMLButtonElement>("edLockBtn");
   btn.disabled = true;
   btn.textContent = "Working…"; // key derivation takes about a second on purpose (it slows down guessing)
-  const problem = mode === "setup" ? await setPassphrase(p) : (await unlockNotes(p)) ? null : "That passphrase isn’t right.";
+  let problem: string | null;
+  try {
+    problem = mode === "setup" ? await setPassphrase(p) : (await unlockNotes(p)) ? null : "That passphrase isn’t right.";
+  } catch {
+    problem = "Something went wrong. Check your connection and try again.";
+  }
   btn.disabled = false;
   if (problem) { renderNote(); return err(problem); }
   lockOpen = false;
