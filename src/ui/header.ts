@@ -7,7 +7,6 @@ import { prefs } from "../lib/storage";
 import type { Entries, LayoutType } from "../lib/types";
 import { LOCAL, S, browserOnly, emit, firstName, nameOf, profileOf, signedIn } from "../state";
 import { openFriends } from "./friends-panel";
-import { mountLogo } from "./logo";
 import { openSignIn } from "./signin";
 import { hideTip } from "./tooltip";
 
@@ -116,5 +115,10 @@ export function bindHeader(changeYear: (dir: 1 | -1) => void) {
   $("prevYear").addEventListener("click", () => changeYear(-1));
   $("nextYear").addEventListener("click", () => { if (S.year < THIS_YEAR) changeYear(1); });
 
-  mountLogo($<HTMLCanvasElement>("brandMark"));
+  // brand mark: nine little rating squares
+  $("brandMark").replaceChildren(...[2, 5, 9, 7, 10, 4, 8, 6, 9].map(r => {
+    const i = h("i", { class: "size-1.5" });
+    i.style.background = cssColor(r);
+    return i;
+  }));
 }
